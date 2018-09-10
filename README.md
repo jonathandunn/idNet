@@ -38,9 +38,9 @@ Training New Models
 
 To train new models, the training data needs to be prepared. This process is automated; see the *Data_DID* and *Data_LID* directories for directions and scripts.
 
-from idNet import idNet_Train
-
-    id = idNet_train()
+	from idNet import idNet_Train
+	
+	id = idNet_train()
 
         type					#(str): Whether to work with language or dialect identification
         input					#(str): Path to input folder
@@ -68,8 +68,8 @@ from idNet import idNet_Train
         lid_ngrams = (1,3)			#(tuple of ints): Range of n-grams to hash
         did_grammar = ".Grammar.p"		#(str): Name of C2xG grammar to use for annotation; allows comparison of different grammars
         c2xg_workers = 1			#(int): For DID, number of workers for c2xg enrichments
-        mlp_sizes = (300, 300, 300)		#(tuple of ints): Size and number of layers; e.g., three layers with 300 neurons each
-        cross_val = False			#(boolean): Whether to use cross-validation for DID rather than a balanced held-out test set; does not return a model
-	dropout = 0.25			#(float): The amount of dropout to apply to each layer; higher values reduce over-fitting but increase training time
-	activation = "relu"		#(str): The type of activation to use; just passes name to Keras
-	optimizer = "sgd"		#(str): The type of optimization algorithm to use; just passes the name to Keras
+        mlp_sizes = (300, 300, 300)		#(tuple of ints): Size and number of layers; e.g., 3 layers at 300 neurons each
+        cross_val = False			#(boolean): Whether to use cross-validation rather than a held-out test set
+	dropout = 0.25				#(float): The amount of dropout to apply to each layer
+	activation = "relu"			#(str): The type of activation; just passes name to Keras
+	optimizer = "sgd"			#(str): The type of optimization algorithm; just passes name to Keras
