@@ -58,8 +58,8 @@ To train new models, the training data needs to be prepared. This process is aut
 | nickname = "Language" | (str) | The nickname for saving / loading models
 | divide_data = True | (boolean) | If True, crawl for dataset; if False, just load it
 | test_samples = 20 | (int) | The number of files for each class to use for testing
-| threshold = 100 | (int) | Number of files required before language or country is included in the model
-| samples_per_epoch = 5	| (int) | Number of samples to use per training epoch for language-domain or language-country pairs
+| threshold = 100 | (int) | Number of files required before language/country is included in model
+| samples_per_epoch = 5	| (int) | Number of samples to use per training epoch
 | language = ""	| (str) | For DID, specifies the language of the current model
 | lid_sample_size = 200	| (int) | For LID, the number of characters to allow per sample
 | did_sample_size = 1 | (int) | For DID, the number of 100 word samples to combine
@@ -69,15 +69,17 @@ To train new models, the training data needs to be prepared. This process is aut
 | class_constraints = [] | (list of strs) | Option to constrain the number of classes
 | merge_dict = {} | (dict) | Original:New name keys
 
-    id.train(model_type, lid_features, lid_ngrams, did_grammar, c2xg_workers, mlp_sizes, cross_val, dropout, activation, optimizer)
+    id.train()
 
-        model_type = "MLP"			#(str): MLP or SVM
-        lid_features = 524288			#(int): Number of character n-gram features to allow, hashing only
-        lid_ngrams = (1,3)			#(tuple of ints): Range of n-grams to hash
-        did_grammar = ".Grammar.p"		#(str): Name of C2xG grammar to use for annotation; allows comparison of different grammars
-        c2xg_workers = 1			#(int): For DID, number of workers for c2xg enrichments
-        mlp_sizes = (300, 300, 300)		#(tuple of ints): Size and number of layers; e.g., 3 layers at 300 neurons each
-        cross_val = False			#(boolean): Whether to use cross-validation rather than a held-out test set
-	dropout = 0.25				#(float): The amount of dropout to apply to each layer
-	activation = "relu"			#(str): The type of activation; just passes name to Keras
-	optimizer = "sgd"			#(str): The type of optimization algorithm; just passes name to Keras
+| Argument | Type | Description |
+| ------------------ | ------------  | -------------------------- |
+| model_type = "MLP" | (str) | MLP or SVM |
+| lid_features = 524288	| (int) | Number of character n-gram features to allow, hashing only |
+| lid_ngrams = (1,3) | (tuple of ints) | Range of n-grams to hash |
+| did_grammar = ".Grammar.p" | (str) | Name of C2xG grammar to use for annotation; allows comparison of different grammars |
+| c2xg_workers = 1 | (int) | For DID, number of workers for c2xg enrichments |
+| mlp_sizes = (300, 300, 300) | (tuple of ints) | Size and number of layers; e.g., 3 layers at 300 neurons each |
+| cross_val = False | (boolean) | Whether to use cross-validation rather than a held-out test set |
+| dropout = 0.25 | (float) | The amount of dropout to apply to each layer |
+| activation = "relu" | (str) | The type of activation; just passes name to Keras |
+| optimizer = "sgd" | (str) | The type of optimization algorithm; just passes name to Keras |
