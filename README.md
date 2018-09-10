@@ -48,8 +48,8 @@ To train new models, the training data needs to be prepared. This process is aut
 	from idNet import idNet_Train
 	id = idNet_train()
 
-| Argument | Description |
-| ------------------    | -------------------------- |
+| Argument | Type | Description |
+| ------------------ | ------------  | -------------------------- |
 | type | (str) | Whether to work with language or dialect identification
 | input | (str) | Path to input folder
 | output | (str) | Path to output folder
