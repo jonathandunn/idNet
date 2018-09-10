@@ -76,7 +76,7 @@ To train new models, the training data needs to be prepared. This process is aut
 | model_type = "MLP" | (str) | MLP or SVM |
 | lid_features = 524288	| (int) | Number of character n-gram features to allow, hashing only |
 | lid_ngrams = (1,3) | (tuple of ints) | Range of n-grams to hash |
-| did_grammar = ".Grammar.p" | (str) | Name of C2xG grammar to use for annotation; allows comparison of different grammars |
+| did_grammar = ".Grammar.p" | (str) | Name of C2xG grammar to use for annotation |
 | c2xg_workers = 1 | (int) | For DID, number of workers for c2xg enrichments |
 | mlp_sizes = (300, 300, 300) | (tuple of ints) | Size and number of layers; e.g., 3 layers at 300 neurons each |
 | cross_val = False | (boolean) | Whether to use cross-validation rather than a held-out test set |
