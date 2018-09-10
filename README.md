@@ -14,6 +14,8 @@ s3_bucket takes a str containing an optional s3 bucket to load the model from. T
 	
 Once a LID model is loaded, it has the following properties:
 
+| Thing 1 | Thing 2 |
+| ------------------    | -------------------------- |
 | lid.n_features	| Number of features in the model (i.e., hashing bins) |
 | lid.n_classes		| Number of languages in the model |
 | lid.lang_mappings	| Dictionary of {"iso_code": "language_name"} mappings for all ISO 639-3 codes |
