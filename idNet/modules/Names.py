@@ -1,203 +1,158 @@
-#General Python packages
-import os.path
-import codecs
-import re
-import pickle
-import time
-import itertools
+class Names(object):
 
-#Specific Python packages
-import numpy as np
-import cytoolz as ct
-from functools import partial
-import multiprocessing as mp
-from gensim.parsing import preprocessing
-
-#SciKit-Learn Dependencies
-from sklearn.feature_extraction.text import HashingVectorizer
-from scipy.sparse import coo_matrix, hstack
-
-#Keras dependencies
-from keras.layers import Dense
-from keras.layers import Dropout
-from keras.layers import Activation
-from keras.models import Model
-from keras.models import load_model
+	def __init__(self):
 	
-class lidNet:
+		self.country_dict = self.get_regions()
+		self.language_dict, self.merge_dict, self.remove_list = self.get_languages()
 
-	#------------------------------------------
-	def __init__(self, model_filename):
+	def get_regions(self):
 	
-		self.n_gram_tuple = (3,3)		#Define n-gram length (fixed by pre-trained model)
+		country_dict = {
+			"jp": {"Region": "asia_east", "Name": "Japan"},
+			"hk": {"Region": "asia_east", "Name": "Hong Kong"},
+			"cn": {"Region": "asia_east", "Name": "China"},
+			"tw": {"Region": "asia_east", "Name": "Taiwan"},
+			"pw": {"Region": "asia_southeast", "Name": "Palau"},
+			"my": {"Region": "asia_southeast", "Name": "Malaysia"},
+			"pr": {"Region": "america_central", "Name": "Puerto Rica"},
+			"ni": {"Region": "america_central", "Name": "Nicaragua"},
+			"sv": {"Region": "america_central", "Name": "El Salvador"},
+			"pa": {"Region": "america_central", "Name": "Panama"},
+			"cu": {"Region": "america_central", "Name": "Cuba"},
+			"hn": {"Region": "america_central", "Name": "Honduras"},
+			"gt": {"Region": "america_central", "Name": "Guatemala"},
+			"do": {"Region": "america_central", "Name": "Dominican Rep."},
+			"mx": {"Region": "america_central", "Name": "Mexico"},
+			"cr": {"Region": "america_central", "Name": "Costa Rica"},
+			"us": {"Region": "america_north", "Name": "United States"},
+			"ar": {"Region": "america_south", "Name": "Argentina"},
+			"py": {"Region": "america_south", "Name": "Paraguay"},
+			"co": {"Region": "america_south", "Name": "Colombia"},
+			"ec": {"Region": "america_south", "Name": "Ecuador"},
+			"cl": {"Region": "america_south", "Name": "Chile"},
+			"ve": {"Region": "america_south", "Name": "Venezuela"},
+			"uy": {"Region": "america_south", "Name": "Uruguay"},
+			"pe": {"Region": "america_south", "Name": "Peru"},
+			"tl": {"Region": "asia_southeast", "Name": "Timor-Leste"},
+			"es": {"Region": "europe_west", "Name": "Spain"},
+			"ht": {"Region": "america_central", "Name": "Haiti"},
+			"ec": {"Region": "america_south", "Name": "Ecuador"},
+			"ge": {"Region": "asia_central", "Name": "Georgia"},
+			"kz": {"Region": "asia_central", "Name": "Kazakhstan"},
+			"az": {"Region": "asia_central", "Name": "Azerbaijan"},
+			"tj": {"Region": "asia_central", "Name": "Tajikistan"},
+			"uz": {"Region": "asia_central", "Name": "Uzbekistan"},
+			"kg": {"Region": "asia_central", "Name": "Kyrgyzstan"},
+			"lt": {"Region": "europe_east", "Name": "Lithuania"},
+			"ee": {"Region": "europe_east", "Name": "Estonia"},
+			"lv": {"Region": "europe_east", "Name": "Latvia"},
+			"by": {"Region": "europe_east", "Name": "Belarus"},
+			"md": {"Region": "europe_east", "Name": "Moldova"},
+			"ua": {"Region": "europe_east", "Name": "Ukraine"},
+			"ru": {"Region": "europe_russia", "Name": "Russia"},
+			"mz": {"Region": "africa_sub", "Name": "Mozambique"},
+			"an": {"Region": "africa_sub", "Name": "(Carribean)"},
+			"ao": {"Region": "africa_sub", "Name": "Angola"},
+			"mo": {"Region": "africa_sub", "Name": "Macao"},
+			"cv": {"Region": "africa_sub", "Name": "Cape Verde"},
+			"br": {"Region": "america_brazil", "Name": "Brazil"},
+			"pt": {"Region": "europe_west", "Name": "Portugal"},
+			"tn": {"Region": "africa_north", "Name": "Tunisia"},
+			"dz": {"Region": "africa_north", "Name": "Algeria"},
+			"bi": {"Region": "africa_sub", "Name": "Burundi"},
+			"cd": {"Region": "africa_sub", "Name": "Congo"},
+			"mg": {"Region": "africa_sub", "Name": "Madagascar"},
+			"ci": {"Region": "africa_sub", "Name": "Ivory Coast"},
+			"cm": {"Region": "africa_sub", "Name": "Cameroon"},
+			"bf": {"Region": "africa_sub", "Name": "Burkina Faso"},
+			"sn": {"Region": "africa_sub", "Name": "Senegal"},
+			"re": {"Region": "africa_sub", "Name": "Reunion"},
+			"gd": {"Region": "america_central", "Name": "Grenada"},
+			"ca": {"Region": "america_north", "Name": "Canada"},
+			"mu": {"Region": "asia_southeast", "Name": "Mauritius"},
+			"pf": {"Region": "asia_southeast", "Name": "French Polynesia"},
+			"be": {"Region": "europe_west", "Name": "Belgium"},
+			"mc": {"Region": "europe_west", "Name": "Monaco"},
+			"lu": {"Region": "europe_west", "Name": "Luxembourg"},
+			"ch": {"Region": "europe_west", "Name": "Switzerland"},
+			"fr": {"Region": "europe_west", "Name": "France"},
+			"nc": {"Region": "oceania", "Name": "New Caldonia"},
+			"za": {"Region": "africa_southern", "Name": "South Africa"},
+			"cd": {"Region": "africa_sub", "Name": "Congo"},
+			"ug": {"Region": "africa_sub", "Name": "Uganda"},
+			"re": {"Region": "africa_sub", "Name": "Reunion"},
+			"gm": {"Region": "africa_sub", "Name": "Gambia"},
+			"ng": {"Region": "africa_sub", "Name": "Nigeria"},
+			"br": {"Region": "america_brazil", "Name": "Brazil"},
+			"bb": {"Region": "america_central", "Name": "Barbados"},
+			"tc": {"Region": "america_central", "Name": "Turks & Caicos"},
+			"vc": {"Region": "america_central", "Name": "St. Vincent"},
+			"bz": {"Region": "america_central", "Name": "Belize"},
+			"us": {"Region": "america_north", "Name": "United States"},
+			"ca": {"Region": "america_north", "Name": "Canada"},
+			"cl": {"Region": "america_south", "Name": "Chile"},
+			"mn": {"Region": "asia_east", "Name": "Mongolia"},
+			"kr": {"Region": "asia_east", "Name": "Korea"},
+			"tw": {"Region": "asia_east", "Name": "Taiwan"},
+			"cn": {"Region": "asia_east", "Name": "China"},
+			"hk": {"Region": "asia_east", "Name": "Hong Kong"},
+			"jp": {"Region": "asia_east", "Name": "Japan"},
+			"lk": {"Region": "asia_south", "Name": "Sri Lanka"},
+			"pk": {"Region": "asia_south", "Name": "Pakistan"},
+			"in": {"Region": "asia_south", "Name": "India"},
+			"pw": {"Region": "asia_southeast", "Name": "Palau"},
+			"my": {"Region": "asia_southeast", "Name": "Malaysia"},
+			"fm": {"Region": "asia_southeast", "Name": "Micronesia"},
+			"ph": {"Region": "asia_southeast", "Name": "Philippines"},
+			"sg": {"Region": "asia_southeast", "Name": "Singapore"},
+			"ro": {"Region": "europe_east", "Name": "Romania"},
+			"ru": {"Region": "europe_russia", "Name": "Russia"},
+			"pt": {"Region": "europe_west", "Name": "Portugal"},
+			"nl": {"Region": "europe_west", "Name": "Netherlands"},
+			"ch": {"Region": "europe_west", "Name": "Switzerland"},
+			"at": {"Region": "europe_west", "Name": "Austria"},
+			"se": {"Region": "europe_west", "Name": "Sweden"},
+			"is": {"Region": "europe_west", "Name": "Iceland"},
+			"fi": {"Region": "europe_west", "Name": "Finland"},
+			"fr": {"Region": "europe_west", "Name": "France"},
+			"de": {"Region": "europe_west", "Name": "Germany"},
+			"es": {"Region": "europe_west", "Name": "Spain"},
+			"uk": {"Region": "europe_west", "Name": "United Kingdom"},
+			"ie": {"Region": "europe_west", "Name": "Ireland"},
+			"qa": {"Region": "middle_east", "Name": "Qatar"},
+			"ae": {"Region": "middle_east", "Name": "U. Arab Emirates"},
+			"fj": {"Region": "Oceania", "Name": "Fiji"},
+			"au": {"Region": "Oceania", "Name": "Australia"},
+			"nz": {"Region": "Oceania", "Name": "New Zealand"},
+			"so": {"Region": "africa_north", "Name": "Somalia"},
+			"pm": {"Region": "america_north", "Name": "St. Pierre & Miquelon"},
+			"tl": {"Region": "asia_southeast", "Name": "Timor-Leste"},
+			"pw": {"Region": "asia_southeast", "Name": "Palau"},
+			"lu": {"Region": "europe_west", "Name": "Luxembourg"},
+			"ch": {"Region": "europe_west", "Name": "Switzerland"},
+			"de": {"Region": "europe_west", "Name": "Germany"},
+			"at": {"Region": "europe_west", "Name": "Austria"},
+			"sd": {"Region": "africa_north", "Name": "Sudan"},
+			"dz": {"Region": "africa_north", "Name": "Algeria"},
+			"tn": {"Region": "africa_north", "Name": "Tunisia"},
+			"iq": {"Region": "middle_east", "Name": "Iraq"},
+			"jo": {"Region": "middle_east", "Name": "Jordan"},
+			"bh": {"Region": "middle_east", "Name": "Bahrain"},
+			"eg": {"Region": "middle_east", "Name": "Egypt"},
+			"qa": {"Region": "middle_east", "Name": "Qatar"},
+			"sa": {"Region": "middle_east", "Name": "Saudi Arabia"},
+			"sy": {"Region": "middle_east", "Name": "Syria"},
+			"ps": {"Region": "middle_east", "Name": "Palestine"},
+			"ae": {"Region": "middle_east", "Name": "U. Arab Emirates"}
+		}
 		
-		#Load model
-		print("\tLoading model: " + model_filename)
-		if os.path.isfile(model_filename):
-			self.model = load_model(model_filename)
-			
-		else:
-			print("Unable to load model file: " + (model_filename))
-			sys.kill()
-		
-		#Find number of features and classes in model
-		self.n_features = self.model.layers[0].input_shape[1]
-		self.n_classes = self.model.layers[-1].output_shape[1]
-		
-		print("\tNumber of features: " + str(self.n_features))
-		print("\tNumber of languages: " + str(self.n_classes))
-		
-		#Get specific classes
-		self.class_array = self.read_file(model_filename + ".Langs")
-		self.class_array = sorted(list(self.class_array))
-		
-		#Check compatibility
-		if len(self.class_array) != self.n_classes:
-			print("\t\tModel is not compatible with provided classes.")
-			sys.kill()
-			
-		#Get tri-gram hashing encoder
-		self.x_encoder = self.get_x_hashing(self.n_features, self.n_gram_tuple)
-		
-		#Get dictionary of class labels
-		self.class_dict = {}
-		for i in range(len(self.class_array)):
-			self.class_dict[i] = self.class_array[i]
-		self.class_dict[self.n_classes] = "und"
-		self.langs = list(self.class_dict.values())
-		#Get language info
-		self.lang_mappings = self.get_names()
-
-	#------------------------------------------		
-	def grouper(self, n, iterable):
-    
-		it = iter(iterable)
-		
-		while True:
-			chunk = tuple(itertools.islice(it, n))
-       
-			if not chunk:
-				return
-			
-			yield chunk
-
-	#------------------------------------------			
-	def feature_generator(self, text, batch_size):
+		return country_dict
 	
-		#Iterate over batches of strings
-		for batch in self.grouper(batch_size, text):
-		
-			#Get features for text
-			X_vector = self.x_encoder(batch)
-			X_vector = X_vector.toarray()
-			
-			yield X_vector
-
-	#------------------------------------------
-	def predict(self, text, batch_size = 2000):
-		
-		single_flag = 0
-		
-		#If only input a single string, need to convert to list
-		if isinstance(text, str):
-			text = [text]
-			single_flag = 1
-		
-		#Set steps to stop generator
-		steps = int(len(text) / batch_size) + 1
-		
-		#Get prediction
-		y = self.model.predict_generator(self.feature_generator(text, batch_size = batch_size), 
-											steps = steps,
-											max_queue_size = 100, 
-											workers = 1, 
-											use_multiprocessing = True
-											)
-		
-		if single_flag == 1:
-			#Get most likely class and find ISO 639-3 code
-			y_class = np.argmax(y)
-			y_class = self.class_dict[y_class]
-		
-		else:
-			#Get most likely classes and find ISO 639-3 codes
-			y_class = np.argmax(y, axis = 1)
-			y_class = [self.class_dict[x] for x in y_class]
-
-		return y_class
-	
-	#------------------------------------------
-	def x_hashing_pre(self, line, myre):
-
-		#Remove links, hashtags, at-mentions, mark-up, and "RT"
-		line = re.sub(r"http\S+", "", line)
-		line = re.sub(r"@\S+", "", line)
-		line = re.sub(r"#\S+", "", line)
-		line = re.sub("<[^>]*>", "", line)
-		line = line.replace(" RT", "").replace("RT ", "")
-		
-		#Remove emojis
-		line = re.sub(myre, "", line)
-		
-		#Remove punctuation and extra spaces
-		line = ct.pipe(line, preprocessing.strip_tags, preprocessing.strip_punctuation, preprocessing.strip_numeric, preprocessing.strip_non_alphanum, preprocessing.strip_multiple_whitespaces)
-		
-		#Strip
-		line = line.lower().strip().lstrip()
-		
-		return line
-
-	#------------------------------------------
-	def get_x_hashing(self, n_features, n_gram_tuple):
-
-		try:
-		# Wide UCS-4 build
-			myre = re.compile(u'['
-				u'\U0001F300-\U0001F64F'
-				u'\U0001F680-\U0001F6FF'
-				u'\u2600-\u26FF\u2700-\u27BF]+', 
-				re.UNICODE)
-		except re.error:
-			# Narrow UCS-2 build
-				myre = re.compile(u'('
-				u'\ud83c[\udf00-\udfff]|'
-				u'\ud83d[\udc00-\ude4f\ude80-\udeff]|'
-				u'[\u2600-\u26FF\u2700-\u27BF])+', 
-				re.UNICODE)
-				
-		hashing_partial = partial(self.x_hashing_pre, myre = myre)
-		
-		#Initialize vectorizer
-		vectorizer = HashingVectorizer(input = "content",
-									encoding = "utf-8",
-									decode_error = "ignore",
-									analyzer = "char",
-									preprocessor = hashing_partial,
-									ngram_range = n_gram_tuple,
-									stop_words = None,
-									lowercase = False,
-									norm = None,
-									n_features = n_features
-									)
-		
-		#Partial so that vectorizer only takes file object								
-		vectorizer = vectorizer.transform
-										
-		return vectorizer
-
-	#------------------------------------------
-	def read_file(self, file):
-		
-		with open(file,'rb') as f:
-			candidate_list = pickle.load(f)
-			
-		return candidate_list
-
-	#------------------------------------------
-	def get_names(self):
+	def get_languages(self):
 
 		name_dict = {
-		#Unknowns
+		
+		#Unknowns, just removed later
 		"qut":"QUT",
 		"jai":"JAI",
 		"tzt":"TZT",
@@ -212,6 +167,7 @@ class lidNet:
 		"alb":"ALB",
 		"cbm":"CBM",
 		"tot": "TOT",
+		
 		#ISO Standards, but some are merged
 		"aaa":"Ghotuo",
 		"aab":"Alumu-Tesu",
@@ -8065,7 +8021,441 @@ class lidNet:
 		"zzj":"Zuojiang Zhuang"
 		}
 		
-		return name_dict
+		remove_list = [
+		"acc", 
+		"alb", 
+		"ast",
+		"auy",
+		"azb", 
+		"bak", 
+		"ban", 
+		"bar",
+		"bba", 
+		"ber", 
+		"bpy", 
+		"bre", 
+		"cbm",
+		"chd",
+		"che",
+		"cjo",
+		"cke", 
+		"ckw", 
+		"clu",
+		"cos", 
+		"cti", 
+		"djk", 
+		"dsb",
+		"frr", 
+		"fry", 
+		"glk",
+		"glv", 
+		"gmv", 
+		"gof",
+		"gsw", 
+		"hif", 
+		"hne", 
+		"hns", 
+		"hsb", 
+		"hub",
+		"ina", 
+		"jac",
+		"jai", 
+		"kdl",
+		"knj",
+		"koi",
+		"kom",
+		"krc",
+		"ksh",
+		"kud",
+		"kze",
+		"lat",
+		"lim", 
+		"lmo", 
+		"ltz", 
+		"lvs", 
+		"mai", 
+		"mbp", 
+		"min",
+		"mix",
+		"mlt", 
+		"mqk",
+		"mvc", 
+		"mvj",
+		"nds", 
+		"nhe", 
+		"nhg", 
+		"nhw", 
+		"pam",
+		"pfl",
+		"pga", 
+		"pob", 
+		"pst", 
+		"qut", 
+		"qxn", 
+		"qxo", 
+		"roh", 
+		"san", 
+		"sco",
+		"sun",
+		"sun", 
+		"tot", 
+		"trc",
+		"tsw",
+		"tzt", 
+		"ura", 
+		"viv",
+		"vls", 
+		"war", 
+		"zos",
+		"egl",
+		"fur",
+		"lij",
+		"mwl",
+		"rue",
+		"vec"
+		]
+						
+		merge_dict = {
+		"aae":"sqi",
+		"aao":"ara",
+		"aao":"ara",
+		"aat":"sqi", 
+		"abh":"ara",
+		"abs":"msa",
+		"abv":"ara",
+		"acm":"ara",
+		"acq":"ara",
+		"acw":"ara",
+		"acx":"ara",
+		"acy":"ara",
+		"adf":"ara",
+		"aeb":"ara",
+		"aec":"ara",
+		"afb":"ara",
+		"ajf":"ara",
+		"ajp":"ara",
+		"aju":"ara",
+		"aln":"sqi", 
+		"als":"sqi", 
+		"apc":"ara",
+		"apd":"ara",
+		"arb":"ara",
+		"arq":"ara",
+		"ars":"ara",
+		"ary":"ara",
+		"arz":"ara",
+		"atd":"mqk",
+		"auz":"ara",
+		"avl":"ara",
+		"ayh":"ara",
+		"ayl":"ara",
+		"ayn":"ara",
+		"ayp":"ara",
+		"azg":"amu",
+		"azm":"amu",
+		"azn":"azd",
+		"azz":"azd",
+		"bbz":"ara",
+		"bos":"hbs",
+		"bpq":"msa",
+		"btj":"msa",
+		"bun":"hbs",
+		"bve":"msa",
+		"bvu":"msa",
+		"bzh":"mmo",
+		"caf":"crx",
+		"ccl":"swa",
+		"ccm":"msa",
+		"cha":"cco",
+		"chq":"cco",
+		"chz":"cco",
+		"ckb":"kur",
+		"cle":"cco",
+		"cmn":"zho",
+		"cnl":"cco",
+		"cnt":"cco",
+		"coa":"msa",
+		"cpa":"cco",
+		"cpb":"cjo",
+		"cpu":"cjo",
+		"cpy":"prq",
+		"crh":"tat",
+		"csa":"cco",
+		"cso":"cco",
+		"cta":"zap",
+		"cte":"cco",
+		"ctl":"cco",
+		"ctp":"zap",
+		"cuc":"cco",
+		"cun":"cco",
+		"cux":"cut",
+		"ebk":"bnc",
+		"ekk":"est",
+		"ghc":"gle",
+		"gla":"gle",
+		"hrv":"hbs",
+		"hto":"huu",
+		"ilm":"ilp",
+		"jax":"msa",
+		"jrb":"ara",
+		"jvn":"jav",
+		"jye":"ara",
+		"kjs":"kew",
+		"kjv":"hbs",
+		"lbk":"bnc",
+		"lrt":"msa",
+		"mab":"mix",
+		"maj":"maa",
+		"maq":"maa",
+		"mau":"maa",
+		"max":"msa",
+		"mbb":"mqk",
+		"mbd":"mqk",
+		"mbf":"msa",
+		"mbi":"mqk",
+		"mbs":"mqk",
+		"mbt":"mqk",
+		"mbz":"mix",
+		"mce":"mix",
+		"mdv":"mix",
+		"meh":"mix",
+		"meo":"msa",
+		"mfa":"msa",
+		"mfp":"msa",
+		"mhp":"msa",
+		"mib":"mix",
+		"mie":"mix",
+		"mig":"mix",
+		"mih":"mix",
+		"mii":"mix",
+		"mil":"mix",
+		"mim":"mix",
+		"mio":"mix",
+		"mip":"mix",
+		"mir":"mxp",
+		"mit":"mix",
+		"miu":"mix",
+		"miy":"mix",
+		"miz":"mix",
+		"mjc":"mix",
+		"mkn":"msa",
+		"mks":"mix",
+		"mkx":"mqk",
+		"mpm":"mix",
+		"mqg":"msa",
+		"mqh":"mix",
+		"mrj":"mhr",
+		"msi":"msa",
+		"msm":"mqk",
+		"mta":"mqk",
+		"mto":"mxp",
+		"mtu":"mix",
+		"mtx":"mix",
+		"mvg":"mix",
+		"mxa":"mix",
+		"mxb":"mix",
+		"mxs":"mix",
+		"mxt":"mix",
+		"mxv":"mix",
+		"mxy":"mix",
+		"mza":"mix",
+		"mzi":"maa",
+		"nan":"zho",
+		"naz":"azd",
+		"nch":"azd",
+		"nci":"azd",
+		"ncj":"azd",
+		"ncl":"azd",
+		"ncx":"azd",
+		"ngu":"azd",
+		"nhc":"azd",
+		"nhe":"azd",
+		"nhi":"azd",
+		"nhk":"azd",
+		"nhm":"azd",
+		"nhn":"azd",
+		"nhp":"azd",
+		"nhq":"azd",
+		"nht":"azd",
+		"nhv":"azd",
+		"nhw":"azd",
+		"nhx":"azd",
+		"nhy":"azd",
+		"nhz":"azd",
+		"nlv":"azd",
+		"nno":"nor", 
+		"nob":"nor", 
+		"npl":"azd",
+		"nsu":"azd",
+		"nuz":"azd",
+		"obk":"bnc",
+		"obo":"mqk",
+		"omw":"tbg",
+		"otl":"ote",
+		"otm":"ote",
+		"otn":"ote",
+		"otq":"ote",
+		"ots":"ote",
+		"ott":"ote",
+		"otx":"ote",
+		"otz":"ote",
+		"pes":"fas",
+		"plt":"mlg",
+		"pmy":"msa",
+		"pnb":"pan",
+		"pse":"msa",
+		"qub":"que",
+		"qub":"que",
+		"quf":"que",
+		"qug":"que",
+		"quh":"que",
+		"quk":"que",
+		"qul":"que",
+		"qup":"que",
+		"qur":"que",
+		"qux":"que",
+		"quy":"que",
+		"quy":"que",
+		"quz":"que",
+		"qva":"que",
+		"qvc":"que",
+		"qve":"que",
+		"qvh":"que",
+		"qvl":"que",
+		"qvm":"que",
+		"qvn":"que",
+		"qvo":"que",
+		"qvp":"que",
+		"qvs":"que",
+		"qvw":"que",
+		"qvz":"que",
+		"qwa":"que",
+		"qwc":"que",
+		"qwh":"que",
+		"qwm":"que",
+		"qws":"que",
+		"qxa":"que",
+		"qxc":"que",
+		"qxh":"que",
+		"qxl":"que",
+		"qxn":"que",
+		"qxo":"que",
+		"qxp":"que",
+		"qxt":"que",
+		"qxu":"que",
+		"qxw":"que",
+		"rbk":"bnc",
+		"sci":"msa",
+		"shu":"ara",
+		"sqr":"ara",
+		"srp":"hbs",
+		"ssh":"ara",
+		"stp":"ntp",
+		"sum":"hbs",
+		"swc":"swa",
+		"swh":"swa",
+		"tac":"tar",
+		"tcw":"toc",
+		"tku":"toc",
+		"tlc":"toc",
+		"tlp":"toc",
+		"too":"toc",
+		"top":"toc",
+		"tos":"toc",
+		"tos":"toc",
+		"tqt":"toc",
+		"trq":"trc",
+		"vbk":"bnc",
+		"vkt":"msa",
+		"vmc":"mix",
+		"vmj":"mix",
+		"vmm":"mix",
+		"vmp":"maa",
+		"vmq":"mix",
+		"vmx":"mix",
+		"vmy":"maa",
+		"vmz":"maa",
+		"xaa":"ara",
+		"xmm":"msa",
+		"xta":"mix",
+		"xtb":"mix",
+		"xtd":"mix",
+		"xti":"mix",
+		"xtj":"mix",
+		"xtl":"mix",
+		"xtm":"mix",
+		"xtn":"mix",
+		"xtp":"mix",
+		"xts":"mix",
+		"xtt":"mix",
+		"xtu":"mix",
+		"xty":"mix",
+		"yhd":"ara",
+		"yud":"ara",
+		"zaa":"zap",
+		"zab":"zap",
+		"zac":"zap",
+		"zad":"zap",
+		"zae":"zap",
+		"zaf":"zap",
+		"zai":"zap",
+		"zam":"zap",
+		"zao":"zap",
+		"zaq":"zap",
+		"zar":"zap",
+		"zas":"zap",
+		"zat":"zap",
+		"zav":"zap",
+		"zaw":"zap",
+		"zax":"zap",
+		"zca":"zap",
+		"zmi":"msa",
+		"zoo":"zap",
+		"zpa":"zap",
+		"zpb":"zap",
+		"zpc":"zap",
+		"zpd":"zap",
+		"zpe":"zap",
+		"zpf":"zap",
+		"zpg":"zap",
+		"zph":"zap",
+		"zpi":"zap",
+		"zpj":"zap",
+		"zpk":"zap",
+		"zpl":"zap",
+		"zpm":"zap",
+		"zpn":"zap",
+		"zpo":"zap",
+		"zpp":"zap",
+		"zpq":"zap",
+		"zpr":"zap",
+		"zps":"zap",
+		"zpt":"zap",
+		"zpu":"zap",
+		"zpv":"zap",
+		"zpw":"zap",
+		"zpx":"zap",
+		"zpy":"zap",
+		"zpz":"zap",
+		"zsm":"msa",
+		"zsr":"zap",
+		"zte":"zap",
+		"ztg":"zap",
+		"ztl":"zap",
+		"ztm":"zap",
+		"ztn":"zap",
+		"ztp":"zap",
+		"ztq":"zap",
+		"zts":"zap",
+		"ztt":"zap",
+		"ztu":"zap",
+		"ztx":"zap",
+		"zty":"zap",
+		"msa":"ind",
+		"imo":"ubu",
+		"oci":"cat",
+		"zea":"nld",
+		"cly":"zap"
+		}
 		
-		
-#---------------------------
+		return name_dict, merge_dict, remove_list
